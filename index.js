@@ -8,24 +8,24 @@ const { Triangle, Circle, Square } = require('./lib/shapes');
 const questions = [
     {
         type: "input",
-        name: "text",
+        name: "textChoice",
         message: "What text would you like for your logo? Enter up to three characters.",
     },
     {
         type: "input",
-        name: "Text color",
+        name: "textColor",
         message: "What color do you want set for your text?",
     },
     {
         type: "input",
-        name: "Shape color",
+        name: "shapeColor",
         message: "What color do you want to fill your shape with?",
     },
     {
         type: "list",
-        name: "Shape choice",
+        name: "shapeChoice",
         message: "Which shape would you like for your logo?",
-        choices: ["Circle", "Square", "Triangle"],
+        choices: ["Triangle", "Circle", "Square"],
     },
 ];
 
@@ -38,41 +38,67 @@ class SvgLogo {
     render() {
         return `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="200">${this.shapeChoice}${this.textChoice}</svg>`
     }
-    setTextChoice(text,color){
+    setTextChoice(text, color) {
         this.textChoice = `<text x="150" y="125" font-size="60" text-anchor="middle" fill="${color}">${text}</text>`
     }
-    setShapeChoice(shape){
+    setShapeChoice(shape) {
         this.shapeChoice = shape.render()
-}
+    }
 }
 
 function writeToFile(fileName, data) {
-   fs.writeFile(fileName, data,  (err) => {
-        if(err) {
+    fs.writeFile(fileName, data, (err) => {
+        if (err) {
             console.error(err);
         } else {
             console.log('Logo Successfully saved!');
         }
-        });
-    }
+    });
+}
 
-    function initLogo() {
-        var svgString = "";
-        var svg_file = "logo.svg";
-        //try inquirer await if there are any errors or glitches. 
-        return inquirer.prompt(questions)
-            .then((answers) => {
-                var user_text = "";
-                if(answers.text.length > 0 && answers.text.length < 4) {
-                    user_text = answers.text;
-                } else {
-                    console.log("Invalid entry, please enter 1-3 characters")
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }
+function initLogo() {
+    var svgString = "";
+    var svg_file = "logo.svg";
+    //try inquirer await if there are any errors or glitches. 
+    return inquirer.prompt(questions)
+        .then((answers) => {
+            var user_text = "";
+            if (answers.textChoice.length > 0 && answers.textChoice.length < 4) {
+                user_text = answers.textChoice;
+            } else {
+                console.log("Invalid entry, please enter 1-3 characters");
+                return;
+            }
+            user_text_color = answers.textColor;
+            user_shape_color = answers.shapeColor;
+            user_shape_type = answers.shapeChoice;
+
+            let user_shape;
+            if (user_shape_type === 'Triangle') {
+                user_shape = new Triangle();
+            } else if (user_shape_type === 'Circle') {
+                user_shape = new Circle();
+            } else if (user_shape_type === 'Square') {
+                user_shape = new Square();
+            } else {
+                console.log('Invalid shape!');
+            }
+            user_shape.setColor(user_shape_color);
+
+
+
+            var svg = new SvgLogo();
+            svg.setTextChoice(user_text, user_text_color);
+            svg.setShapeChoice(user_shape);
+            svgString = svg.render();
+            console.log("Displaying logo" + svgString)
+            writeToFile(svg_file, svgString);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+}
+initLogo();
 //the initiailizating function should be prompting the questions and console logging them
 //in the same initialization function you have to verify the user type input of the shapes to the shape
 //also write an else function for invalid shapes 
