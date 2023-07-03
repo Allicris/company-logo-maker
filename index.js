@@ -91,7 +91,7 @@ function initLogo() {
             svg.setTextChoice(user_text, user_text_color);
             svg.setShapeChoice(user_shape);
             svgString = svg.render();
-            console.log("Displaying logo" + svgString)
+            console.log("Generated logo.svg" + svgString)
             writeToFile(svg_file, svgString);
         })
         .catch((error) => {
